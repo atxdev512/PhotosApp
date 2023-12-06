@@ -1,5 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { Button, ButtonProps, PhotosList, Screen, ScreenProps } from "app/components"
+import { usePhotoStore } from "app/components/providers/PhotoStoreProvider"
 import { AppStackParamList } from "app/navigators"
 import { spacing } from "app/theme"
 import { useState } from "react"
@@ -9,6 +10,8 @@ export function EditPhotosScreen({
   navigation,
   route,
 }: NativeStackScreenProps<AppStackParamList, "Photos">) {
+  const { userPhotos } = usePhotoStore()
+
   const [isDeleting, setIsDeleting] = useState(false)
 
   const navigateToAddPhotos = () => {
@@ -18,8 +21,7 @@ export function EditPhotosScreen({
   return (
     <Screen contentContainerStyle={$screen} safeAreaEdges={["top"]}>
       <View style={$innerContainer}>
-        <PhotosList style={$photosList} />
-
+        <PhotosList action="remove" photos={userPhotos} style={$photosList} />
         <View style={$buttons}>
           <Button
             style={$button}

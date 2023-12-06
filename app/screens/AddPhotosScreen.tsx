@@ -1,5 +1,6 @@
 import { type NativeStackScreenProps } from "@react-navigation/native-stack"
 import { Button, PhotosList, Screen, type ScreenProps } from "app/components"
+import { usePhotoStore } from "app/components/providers/PhotoStoreProvider"
 import { type AppStackParamList } from "app/navigators"
 import { spacing } from "app/theme"
 import { useState } from "react"
@@ -9,12 +10,13 @@ export function AddPhotosScreen({
   navigation,
   route,
 }: NativeStackScreenProps<AppStackParamList, "AddPhotos">) {
+  const { availablePhotos } = usePhotoStore()
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([])
 
   return (
     <Screen contentContainerStyle={$screen} safeAreaEdges={["top"]}>
       <View style={$innerContainer}>
-        <PhotosList style={$photosList} />
+        <PhotosList action="add" photos={availablePhotos} style={$photosList} />
 
         <Button
           style={$buttonPadding}
