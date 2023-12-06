@@ -1,4 +1,5 @@
-import { type ImageSourcePropType } from "react-native"
+import { PhotoObjType } from "types"
+
 import photo1 from "./photo-1.jpg"
 import photo2 from "./photo-2.jpg"
 import photo3 from "./photo-3.jpg"
@@ -15,7 +16,7 @@ import photo13 from "./photo-13.jpg"
 import photo14 from "./photo-14.jpg"
 import photo15 from "./photo-15.jpg"
 
-export default [
+const AVAILABLE_PHOTOS: PhotoObjType[] = [
   photo1,
   photo2,
   photo3,
@@ -35,3 +36,5 @@ export default [
   id: `photo-${index}`,
   photo,
 }))
+
+export default AVAILABLE_PHOTOS
