@@ -38,17 +38,20 @@ export function PhotosList({ photos, action, ...props }: PhotoListProps) {
 
   return (
     <View {...props}>
-      <FlatList
-        data={photos}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={{ width: 16, backgroundColor: "pink" }} />}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        renderItem={({ item }) => <PhotoItem onPress={() => handlePhotoTap(item)} {...item} />}
-        contentContainerStyle={$containerStyle}
-        columnWrapperStyle={$columnWrapperStyle}
-        ListEmptyComponent={() => <EmptyList notice="You haven't added photos yet" />}
-      />
+      {photos.length > 0 ? (
+        <FlatList
+          data={photos}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={{ width: 16, backgroundColor: "pink" }} />}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          renderItem={({ item }) => <PhotoItem onPress={() => handlePhotoTap(item)} {...item} />}
+          contentContainerStyle={$containerStyle}
+          columnWrapperStyle={$columnWrapperStyle}
+        />
+      ) : (
+        <EmptyList notice="You haven't added photos yet" />
+      )}
     </View>
   )
 }
