@@ -94,6 +94,7 @@ export const iconRegistry = {
   community: require("../../../assets/icons/community.png"),
   components: require("../../../assets/icons/components.png"),
   debug: require("../../../assets/icons/debug.png"),
+  empty: require("../../../assets/icons/empty.png"),
   github: require("../../../assets/icons/github.png"),
   heart: require("../../../assets/icons/heart.png"),
   hidden: require("../../../assets/icons/hidden.png"),
