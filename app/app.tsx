@@ -25,6 +25,7 @@ import * as Linking from "expo-linking"
 import { AppNavigator, useNavigationPersistence } from "./navigators"
 import * as storage from "./utils/storage"
 import { customFontsToLoad } from "./theme"
+import { PhotoStoreProvider } from "./components/providers/PhotoStoreProvider"
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 
@@ -84,11 +85,13 @@ function App(props: AppProps) {
   // otherwise, we're ready to render the app
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <AppNavigator
-        linking={linking}
-        initialState={initialNavigationState}
-        onStateChange={onNavigationStateChange}
-      />
+      <PhotoStoreProvider>
+        <AppNavigator
+          linking={linking}
+          initialState={initialNavigationState}
+          onStateChange={onNavigationStateChange}
+        />
+      </PhotoStoreProvider>
     </SafeAreaProvider>
   )
 }
