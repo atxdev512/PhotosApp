@@ -1,6 +1,6 @@
 import { Alert, FlatList, View, ViewProps, ViewStyle } from "react-native"
-import { PhotoItem } from "../atoms/PhotoItem"
-import { usePhotoStore } from "../providers/PhotosProvider"
+import { PhotoItem } from "../molecules/PhotoItem"
+import { usePhotoStore } from "../providers/PhotoStoreProvider"
 import { EmptyList } from "../molecules/EmptyList"
 import { PhotoObjType } from "types"
 
