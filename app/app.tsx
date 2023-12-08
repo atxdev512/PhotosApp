@@ -26,6 +26,7 @@ import { AppNavigator, useNavigationPersistence } from "./navigators"
 import * as storage from "./utils/storage"
 import { customFontsToLoad } from "./theme"
 import { PhotoStoreProvider } from "./components/providers/PhotoStoreProvider"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 
@@ -53,6 +54,8 @@ const config = {
 interface AppProps {
   hideSplashScreen: () => Promise<void>
 }
+
+const queryClient = new QueryClient()
 
 /**
  * This is the root component of our app.
@@ -85,13 +88,15 @@ function App(props: AppProps) {
   // otherwise, we're ready to render the app
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <PhotoStoreProvider>
-        <AppNavigator
-          linking={linking}
-          initialState={initialNavigationState}
-          onStateChange={onNavigationStateChange}
-        />
-      </PhotoStoreProvider>
+      <QueryClientProvider client={queryClient}>
+        <PhotoStoreProvider>
+          <AppNavigator
+            linking={linking}
+            initialState={initialNavigationState}
+            onStateChange={onNavigationStateChange}
+          />
+        </PhotoStoreProvider>
+      </QueryClientProvider>
     </SafeAreaProvider>
   )
 }

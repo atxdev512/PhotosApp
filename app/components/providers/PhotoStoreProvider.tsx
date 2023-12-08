@@ -3,7 +3,8 @@ import ImageView from "react-native-image-viewing"
 import AVAILABLE_PHOTOS from "assets/photos"
 import { PhotoObjType } from "types"
 import { ImageSource } from "react-native-image-viewing/dist/@types"
-import { useLocalStorage } from "../hooks/useLocalStorage"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import api from "app/api"
 
 type PhotoStoreContextType = {
   availablePhotos: PhotoObjType[]
@@ -23,38 +24,48 @@ type PhotoStoreContextType = {
 const PhotoStoreContext = React.createContext<PhotoStoreContextType>(null)
 
 export const PhotoStoreProvider = ({ children }: PropsWithChildren) => {
-  // USER PHOTOS MGMT
-  const [userPhotos, setUserPhotos] = useLocalStorage<PhotoObjType[]>("userPhotos", [])
+  const queryClient = useQueryClient()
 
-  // PHOTO SELECTION
+  // Fetch user photos
+  const { data: userPhotosData = [] } = useQuery<PhotoObjType[], Error>({
+    queryKey: ["userPhotos"],
+    queryFn: api.getSaved,
+  })
+
+  // Selection mgmt
   const [selectionMode, setSelectionMode] = useState(false)
   const [selectedItems, setSelectedItems] = useState<PhotoObjType[]>([])
 
-  // PHOTO VIEWER
+  // Photo viewer
   const [viewerIdx, setViewerIdx] = useState<number>(null)
 
   const userPhotosForViewer = useMemo(
-    () => userPhotos.map((item) => item.photo as ImageSource),
-    [userPhotos],
+    () => userPhotosData.map((item) => item.photo as ImageSource),
+    [userPhotosData],
   )
 
-  const addUserPhotos = () => {
-    setUserPhotos([...new Set([...userPhotos, ...selectedItems])])
-    setSelectedItems([])
-    setSelectionMode(false)
-  }
+  const { mutate: addUserPhotosMutation } = useMutation({
+    mutationFn: api.add,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userPhotos"] })
+      setSelectedItems([])
+      setSelectionMode(false)
+    },
+  })
 
-  const removeUserPhotos = () => {
-    setUserPhotos([...userPhotos].filter((id) => !selectedItems.includes(id)))
-    setSelectedItems([])
-    setSelectionMode(false)
-  }
+  const { mutate: removeUserPhotosMutation } = useMutation({
+    mutationFn: api.remove,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userPhotos"] })
+      setSelectedItems([])
+      setSelectionMode(false)
+    },
+  })
 
   const toggleSelectionMode = () => {
     if (selectionMode) {
       setSelectedItems([])
     }
-
     setSelectionMode(!selectionMode)
   }
 
@@ -71,12 +82,16 @@ export const PhotoStoreProvider = ({ children }: PropsWithChildren) => {
     setViewerIdx(idx)
   }
 
+  useMemo(() => {
+    queryClient.setQueryData(["userPhotos"], userPhotosData)
+  }, [userPhotosData])
+
   const contextValue = useMemo(
     () => ({
       availablePhotos: AVAILABLE_PHOTOS,
-      userPhotos,
-      addUserPhotos,
-      removeUserPhotos,
+      userPhotos: userPhotosData,
+      addUserPhotos: () => addUserPhotosMutation(selectedItems.map((e) => e.id)),
+      removeUserPhotos: () => removeUserPhotosMutation(selectedItems.map((e) => e.id)),
       toggleSelectionMode,
       toggleSelectedItem,
       setSelectionMode,
@@ -84,7 +99,7 @@ export const PhotoStoreProvider = ({ children }: PropsWithChildren) => {
       selectedItems,
       openViewer,
     }),
-    [userPhotos, selectionMode, selectedItems],
+    [userPhotosData, selectionMode, selectedItems],
   )
 
   return (
