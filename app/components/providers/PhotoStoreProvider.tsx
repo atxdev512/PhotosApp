@@ -1,12 +1,17 @@
-import AVAILABLE_PHOTOS from "assets/photos"
 import React, { PropsWithChildren, useContext, useMemo, useState } from "react"
+import ImageView from "react-native-image-viewing"
+import AVAILABLE_PHOTOS from "assets/photos"
 import { PhotoObjType } from "types"
+import { ImageSource } from "react-native-image-viewing/dist/@types"
+import { useLocalStorage } from "../hooks/useLocalStorage"
 
 type PhotoStoreContextType = {
   availablePhotos: PhotoObjType[]
   userPhotos: PhotoObjType[]
   addUserPhotos: () => void
   removeUserPhotos: () => void
+
+  openViewer: (idx?: number) => void
 
   toggleSelectionMode: () => void
   setSelectionMode: (val: boolean) => void
@@ -19,26 +24,28 @@ const PhotoStoreContext = React.createContext<PhotoStoreContextType>(null)
 
 export const PhotoStoreProvider = ({ children }: PropsWithChildren) => {
   // USER PHOTOS MGMT
-  const [userPhotos, setUserPhotos] = useState<PhotoObjType[]>([])
+  const [userPhotos, setUserPhotos] = useLocalStorage<PhotoObjType[]>("userPhotos", [])
 
   // PHOTO SELECTION
   const [selectionMode, setSelectionMode] = useState(false)
   const [selectedItems, setSelectedItems] = useState<PhotoObjType[]>([])
 
+  // PHOTO VIEWER
+  const [viewerIdx, setViewerIdx] = useState<number>(null)
+
+  const userPhotosForViewer = useMemo(
+    () => userPhotos.map((item) => item.photo as ImageSource),
+    [userPhotos],
+  )
+
   const addUserPhotos = () => {
-    setUserPhotos((prev) => {
-      const newState = [...new Set([...prev, ...selectedItems])]
-      return newState
-    })
+    setUserPhotos([...new Set([...userPhotos, ...selectedItems])])
     setSelectedItems([])
     setSelectionMode(false)
   }
 
   const removeUserPhotos = () => {
-    setUserPhotos((prev) => {
-      const newState = [...prev].filter((id) => !selectedItems.includes(id))
-      return newState
-    })
+    setUserPhotos([...userPhotos].filter((id) => !selectedItems.includes(id)))
     setSelectedItems([])
     setSelectionMode(false)
   }
@@ -60,6 +67,10 @@ export const PhotoStoreProvider = ({ children }: PropsWithChildren) => {
     })
   }
 
+  const openViewer = (idx = 0) => {
+    setViewerIdx(idx)
+  }
+
   const contextValue = useMemo(
     () => ({
       availablePhotos: AVAILABLE_PHOTOS,
@@ -71,11 +82,24 @@ export const PhotoStoreProvider = ({ children }: PropsWithChildren) => {
       setSelectionMode,
       selectionMode,
       selectedItems,
+      openViewer,
     }),
     [userPhotos, selectionMode, selectedItems],
   )
 
-  return <PhotoStoreContext.Provider value={contextValue}>{children}</PhotoStoreContext.Provider>
+  return (
+    <PhotoStoreContext.Provider value={contextValue}>
+      <ImageView
+        images={userPhotosForViewer}
+        imageIndex={viewerIdx}
+        visible={viewerIdx !== null}
+        onRequestClose={() => setViewerIdx(null)}
+        swipeToCloseEnabled
+        doubleTapToZoomEnabled
+      />
+      {children}
+    </PhotoStoreContext.Provider>
+  )
 }
 
 export const usePhotoStore = () => {
