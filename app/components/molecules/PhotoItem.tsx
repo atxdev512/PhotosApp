@@ -2,7 +2,7 @@ import { Image, ImageStyle, TouchableOpacity, TouchableOpacityProps, ViewStyle }
 import { PhotoObjType } from "types"
 import { SelectedCheck } from "./SelectedCheck"
 
-type PhotoItemProps = TouchableOpacityProps &
+export type PhotoItemProps = TouchableOpacityProps &
   PhotoObjType & {
     selectionMode?: boolean
     selected?: boolean

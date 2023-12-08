@@ -3,7 +3,7 @@ import { Text } from "../atoms/Text"
 import { Icon } from "../atoms/Icon"
 import { Spacer } from "../atoms/Spacer"
 
-type EmptyListProps = {
+export type EmptyListProps = {
   notice?: string
 }
 
