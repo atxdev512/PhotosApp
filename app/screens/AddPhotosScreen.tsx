@@ -3,25 +3,46 @@ import { Button, PhotosList, Screen, type ScreenProps } from "app/components"
 import { usePhotoStore } from "app/components/providers/PhotoStoreProvider"
 import { type AppStackParamList } from "app/navigators"
 import { spacing } from "app/theme"
-import { useState } from "react"
-import { View, type ViewStyle } from "react-native"
+import { useEffect } from "react"
+import { Alert, View, type ViewStyle } from "react-native"
+import { PhotoObjType } from "types"
 
 export function AddPhotosScreen({
   navigation,
   route,
 }: NativeStackScreenProps<AppStackParamList, "AddPhotos">) {
-  const { availablePhotos } = usePhotoStore()
-  const [selectedPhotos, setSelectedPhotos] = useState<string[]>([])
+  const { availablePhotos, addUserPhotos, selectedItems, setSelectionMode, toggleSelectedItem } =
+    usePhotoStore()
+
+  const handleItemTap = (item: PhotoObjType) => {
+    toggleSelectedItem(item)
+  }
+
+  const handleAddSelected = () => {
+    addUserPhotos()
+    if (navigation.canGoBack()) {
+      navigation.goBack()
+    }
+  }
+
+  useEffect(() => {
+    setSelectionMode(true)
+  }, [])
 
   return (
     <Screen contentContainerStyle={$screen} safeAreaEdges={["top"]}>
       <View style={$innerContainer}>
-        <PhotosList action="add" photos={availablePhotos} style={$photosList} />
-
+        <PhotosList
+          onItemTap={handleItemTap}
+          photos={availablePhotos}
+          style={$photosList}
+          mountInSelectionMode
+        />
         <Button
           style={$buttonPadding}
           tx="addPhotosScreen.addSelected"
-          disabled={!selectedPhotos.length}
+          disabled={selectedItems.length === 0}
+          onPress={handleAddSelected}
         />
       </View>
     </Screen>

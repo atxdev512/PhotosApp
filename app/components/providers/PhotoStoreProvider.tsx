@@ -1,32 +1,62 @@
 import AVAILABLE_PHOTOS from "assets/photos"
-import React, { useContext, useMemo, useState } from "react"
+import React, { PropsWithChildren, useContext, useMemo, useState } from "react"
 import { PhotoObjType } from "types"
 
 type PhotoStoreContextType = {
   availablePhotos: PhotoObjType[]
   userPhotos: PhotoObjType[]
-  addUserPhotos: (photosIds: PhotoObjType[]) => void
-  removeUserPhotos: (photosIds: PhotoObjType[]) => void
+  addUserPhotos: () => void
+  removeUserPhotos: () => void
+
+  toggleSelectionMode: () => void
+  setSelectionMode: (val: boolean) => void
+  selectionMode: boolean
+  toggleSelectedItem: (item: PhotoObjType) => void
+  selectedItems: PhotoObjType[]
 }
 
 const PhotoStoreContext = React.createContext<PhotoStoreContextType>(null)
 
-export const PhotoStoreProvider = ({ children }) => {
+export const PhotoStoreProvider = ({ children }: PropsWithChildren) => {
+  // USER PHOTOS MGMT
   const [userPhotos, setUserPhotos] = useState<PhotoObjType[]>([])
 
-  const addUserPhotos = (photosIds: PhotoObjType[]) => {
-    setUserPhotos((prev) => {
-      const newState = [...new Set([...prev, ...photosIds])]
+  // PHOTO SELECTION
+  const [selectionMode, setSelectionMode] = useState(false)
+  const [selectedItems, setSelectedItems] = useState<PhotoObjType[]>([])
 
+  const addUserPhotos = () => {
+    setUserPhotos((prev) => {
+      const newState = [...new Set([...prev, ...selectedItems])]
       return newState
     })
+    setSelectedItems([])
+    setSelectionMode(false)
   }
 
-  const removeUserPhotos = (idsToRemove: PhotoObjType[]) => {
+  const removeUserPhotos = () => {
     setUserPhotos((prev) => {
-      const newState = [...prev].filter((id) => !idsToRemove.includes(id))
-
+      const newState = [...prev].filter((id) => !selectedItems.includes(id))
       return newState
+    })
+    setSelectedItems([])
+    setSelectionMode(false)
+  }
+
+  const toggleSelectionMode = () => {
+    if (selectionMode) {
+      setSelectedItems([])
+    }
+
+    setSelectionMode(!selectionMode)
+  }
+
+  const toggleSelectedItem = (item: PhotoObjType) => {
+    setSelectedItems((prev) => {
+      const isSelected = prev.some((selectedItem) => selectedItem.id === item.id)
+      return isSelected
+        ? prev.filter((selectedItem) => selectedItem.id !== item.id)
+        : [...prev, item]
     })
   }
 
@@ -36,8 +66,13 @@ export const PhotoStoreProvider = ({ children }) => {
       userPhotos,
       addUserPhotos,
       removeUserPhotos,
+      toggleSelectionMode,
+      toggleSelectedItem,
+      setSelectionMode,
+      selectionMode,
+      selectedItems,
     }),
-    [userPhotos],
+    [userPhotos, selectionMode, selectedItems],
   )
 
   return <PhotoStoreContext.Provider value={contextValue}>{children}</PhotoStoreContext.Provider>

@@ -3,37 +3,57 @@ import { Button, ButtonProps, PhotosList, Screen, ScreenProps } from "app/compon
 import { usePhotoStore } from "app/components/providers/PhotoStoreProvider"
 import { AppStackParamList } from "app/navigators"
 import { spacing } from "app/theme"
-import { useState } from "react"
-import { View, ViewStyle } from "react-native"
+import { useEffect, useRef, useState } from "react"
+import { Alert, View, ViewStyle } from "react-native"
+import { PhotoObjType } from "types"
 
 export function EditPhotosScreen({
   navigation,
   route,
 }: NativeStackScreenProps<AppStackParamList, "Photos">) {
-  const { userPhotos } = usePhotoStore()
-
-  const [isDeleting, setIsDeleting] = useState(false)
+  const {
+    userPhotos,
+    selectionMode,
+    toggleSelectionMode,
+    setSelectionMode,
+    toggleSelectedItem,
+    removeUserPhotos,
+  } = usePhotoStore()
 
   const navigateToAddPhotos = () => {
     navigation.navigate("AddPhotos")
   }
 
+  const handleItemTap = (item: PhotoObjType) => {
+    if (selectionMode) {
+      toggleSelectedItem(item)
+    }
+  }
+
+  const handleRemoveSelected = () => {
+    removeUserPhotos()
+  }
+
+  useEffect(() => {
+    setSelectionMode(false)
+  }, [])
+
   return (
     <Screen contentContainerStyle={$screen} safeAreaEdges={["top"]}>
       <View style={$innerContainer}>
-        <PhotosList action="remove" photos={userPhotos} style={$photosList} />
+        <PhotosList onItemTap={handleItemTap} photos={userPhotos} />
         <View style={$buttons}>
           <Button
             style={$button}
-            preset={isDeleting ? "reversed" : "default"}
-            tx={isDeleting ? "editPhotosScreen.cancel" : "editPhotosScreen.select"}
-            onPress={() => setIsDeleting(!isDeleting)}
+            preset={selectionMode ? "reversed" : "default"}
+            tx={selectionMode ? "editPhotosScreen.cancel" : "editPhotosScreen.select"}
+            onPress={toggleSelectionMode}
           />
           <Button
             style={$button}
-            preset={isDeleting ? "danger" : "default"}
-            tx={isDeleting ? "editPhotosScreen.delete" : "editPhotosScreen.add"}
-            onPress={isDeleting ? undefined : navigateToAddPhotos}
+            preset={selectionMode ? "danger" : "default"}
+            tx={selectionMode ? "editPhotosScreen.delete" : "editPhotosScreen.add"}
+            onPress={selectionMode ? handleRemoveSelected : navigateToAddPhotos}
           />
         </View>
       </View>
@@ -48,10 +68,6 @@ const $screen: ScreenProps["contentContainerStyle"] = {
 const $innerContainer: ViewStyle = {
   flex: 1,
   paddingHorizontal: spacing.md,
-}
-
-const $photosList: ViewStyle = {
-  flex: 1,
 }
 
 const $buttons: ViewStyle = {
