@@ -4,21 +4,26 @@ import { usePhotoStore } from "app/components/providers/PhotoStoreProvider"
 import { type AppStackParamList } from "app/navigators"
 import { spacing } from "app/theme"
 import { View, type ViewStyle } from "react-native"
+import { PhotoObjType } from "types"
 
 export function PhotosScreen({
   navigation,
   route,
 }: NativeStackScreenProps<AppStackParamList, "Photos">) {
-  const { userPhotos } = usePhotoStore()
+  const { userPhotos, openViewer } = usePhotoStore()
 
   const navigateToEditPhotos = () => {
     navigation.navigate("EditPhotos")
   }
 
+  const handleItemTap = (_item: PhotoObjType, idx: number) => {
+    openViewer(idx)
+  }
+
   return (
     <Screen contentContainerStyle={$screen} safeAreaEdges={["top"]}>
       <View style={$innerContainer}>
-        <PhotosList action="view" photos={userPhotos} style={$photosList} />
+        <PhotosList onItemTap={handleItemTap} photos={userPhotos} style={$photosList} />
         <Button style={$buttonPadding} tx="photosScreen.edit" onPress={navigateToEditPhotos} />
       </View>
     </Screen>

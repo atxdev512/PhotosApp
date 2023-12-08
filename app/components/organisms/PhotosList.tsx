@@ -7,7 +7,7 @@ import { usePhotoStore } from "../providers/PhotoStoreProvider"
 
 export type PhotoListProps = ViewProps & {
   photos: PhotoObjType[]
-  onItemTap?: (item: PhotoObjType) => void
+  onItemTap?: (item: PhotoObjType, idx: number) => void
   mountInSelectionMode?: boolean
 }
 
@@ -28,9 +28,9 @@ export const PhotosList = ({
           ItemSeparatorComponent={() => <View style={{ width: 16, backgroundColor: "pink" }} />}
           keyExtractor={(item) => item.id}
           numColumns={2}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <PhotoItem
-              onPress={() => onItemTap(item)}
+              onPress={() => onItemTap(item, index)}
               selected={selectedItems.some((selectedItem) => selectedItem.id === item.id)}
               selectionMode={selectionMode}
               {...item}

@@ -18,15 +18,18 @@ export function EditPhotosScreen({
     setSelectionMode,
     toggleSelectedItem,
     removeUserPhotos,
+    openViewer,
   } = usePhotoStore()
 
   const navigateToAddPhotos = () => {
     navigation.navigate("AddPhotos")
   }
 
-  const handleItemTap = (item: PhotoObjType) => {
+  const handleItemTap = (item: PhotoObjType, idx: number) => {
     if (selectionMode) {
       toggleSelectedItem(item)
+    } else {
+      openViewer(idx)
     }
   }
 
