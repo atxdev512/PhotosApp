@@ -16,7 +16,7 @@ import photo13 from "./photo-13.jpg"
 import photo14 from "./photo-14.jpg"
 import photo15 from "./photo-15.jpg"
 
-const AVAILABLE_PHOTOS: PhotoObjType[] = [
+export default [
   photo1,
   photo2,
   photo3,
@@ -32,9 +32,10 @@ const AVAILABLE_PHOTOS: PhotoObjType[] = [
   photo13,
   photo14,
   photo15,
-].map((photo, index) => ({
-  id: `photo-${index}`,
-  photo,
-}))
-
-export default AVAILABLE_PHOTOS
+].map(
+  (photo, index) =>
+    ({
+      id: `photo-${index}`,
+      photo,
+    } as PhotoObjType),
+)
